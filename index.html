@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>주빈 x 가온 뽀모도로 (승미니 파이팅💜)</title>
+    <style>
+        :root {
+            --main-blue: #A2D2FF; /* 주빈's 연한 파랑 */
+            --sky-blue: #EAF4FF; /* 팬즈 댓글창 배경 */
+            --navy: #1A2A4E;
+            --text-dark: #333333;
+        }
+
+        body {
+            background-color: #F8FBFF;
+            font-family: 'Pretendard', sans-serif;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: flex-start;
+            min-height: 100vh; margin: 0;
+            color: var(--navy);
+            width: 100vw; /* 화면 꽉 차게 */
+            overflow-x: hidden;
+        }
+
+        /* 1. 상단 타이틀 더 크게 (수정 완료!) */
+        .header { text-align: center; margin: 40px 0; }
+        .header h1 { font-size: 56px; font-weight: 950; letter-spacing: 12px; color: var(--main-blue); margin: 0; } /* Pomodoro 글씨 더 크게 */
+        .header p { font-size: 24px; font-weight: 300; margin: 10px 0; color: #777; } /* 오늘도 파이팅💜 -승미니- 더 크게, 얇게 */
+
+        /* 2. 압도적인 왕 큰 원 (화면 꽉 차게, 수정 완료!) */
+        .circle-container {
+            position: relative;
+            width: 85vw; height: 85vw; /* 화면 너비 85% 차지 */
+            max-width: 360px; max-height: 360px; /* 너무 커지진 않게 제한 */
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 25px 55px rgba(162, 210, 255, 0.6);
+            border: 12px solid #fff;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+        #photo-bg { position: absolute; width: 100%; height: 100%; object-fit: cover; filter: grayscale(100%); z-index: 1; }
+        #photo-fg { position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 2; clip-path: conic-gradient(black 0%, transparent 0%); } /* 컬러 사진 (시계방향 모션, 수정 완료!) */
+        .timer-text {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 95px; font-weight: 950; color: white;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.5); z-index: 10;
+        }
+
+        /* 3. 팬즈 댓글창 (더 서사 완벽하게, 크기 조절, 배경색 변경, 수정 완료!) */
+        .chat-section {
+            width: 85vw; max-width: 370px; background: var(--sky-blue); border-radius: 25px; /* 조금 사이즈 줄임, 배경 연한 하늘 */
+            padding: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            margin-bottom: 40px; display: flex; flex-direction: column; gap: 15px;
+        }
+        .message { display: flex; gap: 10px; }
+        .pfp { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; background: #eee; }
+        .emoji-pfp { font-size: 30px; display: flex; align-items: center; justify-content: center; } /* 주빈 댓글 프사 😈 */
+        .content { flex: 1; }
+        .name { font-weight: 800; font-size: 14px; margin-bottom: 2px; }
+        .text { font-size: 13.5px; line-height: 1.4; color: var(--text-dark); font-weight: 500; }
+        .time { font-size: 10px; color: #aaa; margin-top: 4px; }
+        
+        .reply-box { margin-left: 20px; display: flex; gap: 10px; } /* 가온 댓글 들여쓰기 */
+
+        /* 4. 하단 버튼 & 시간 설정 (탭 추가, 크기 확대, 수정 완료!) */
+        .controls-panel { width: 85vw; max-width: 370px; display: flex; flex-direction: column; align-items: center; margin-bottom: 50px; }
+        
+        .upload-and-set { display: flex; gap: 15px; margin-bottom: 20px; width: 100%; justify-content: space-between; align-items: center; }
+        .file-label { background: white; color: var(--main-blue); border: 2.5px solid var(--main-blue); padding: 12px 20px; border-radius: 30px; cursor: pointer; font-weight: 800; font-size: 13px; }
+        
+        .set-time { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #666; font-weight: 600; }
+        .set-time input { width: 45px; height: 35px; text-align: center; border: 2.5px solid var(--main-blue); border-radius: 12px; font-size: 16px; font-weight: 800; color: var(--navy); }
+
+        .btns { display: flex; gap: 12px; width: 100%; }
+        button { padding: 15px; border-radius: 30px; border: none; font-weight: 900; cursor: pointer; font-size: 17px; transition: 0.2s; flex: 1; }
+        .btn-start { background: var(--main-blue); color: white; }
+        .btn-reset { background: #eee; color: #777; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>POMODORO</h1>
+        <p>오늘도 파이팅💜 -승미니-</p>
+    </div>
+
+    <div class="circle-container">
+        <img id="photo-bg" src="https://via.placeholder.com/400?text=Upload+Photo" alt="BG">
+        <img id="photo-fg" src="https://via.placeholder.com/400?text=Upload+Photo" alt="FG">
+        <div class="timer-text" id="timer">25:00</div>
+    </div>
+
+    <div class="controls-panel">
+        <div class="upload-and-set">
+            <label class="file-label">배경 사진 고르기 📷 <input type="file" id="file-upload" accept="image/*" style="display:none;"></label>
+            <div class="set-time">
+                <input type="number" id="minutes-input" value="25" min="1" max="60"> 분 설정
+            </div>
+        </div>
+
+        <div class="btns">
+            <button class="btn-start" id="start-btn">START</button>
+            <button class="btn-reset" id="reset-btn">RESET</button>
+        </div>
+    </div>
+
+    <div class="chat-section">
+        <div class="message">
+            <div class="pfp emoji-pfp">😈</div> <div class="content">
+                <div class="name">주빈</div>
+                <div class="text">지석아! 나 곧 피아노 대회 나가는데 너무 긴장돼ㅜㅜ 잘할수 있겠지?</div>
+                <div class="time">방금 전</div>
+            </div>
+        </div>
+        <div class="reply-box">
+            <img class="pfp" src="gaon-pfp.png" id="target-gaon-pfp" alt="가온프사"> 
+            <div class="content">
+                <div class="name">가온</div> <div class="text" style="color: #1A2A4E; font-weight: 700;">@주빈 물론이지ㅣ!! 긴장을 즐기자ㅏ!</div>
+                <div class="time">방금 전</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const photoBg = document.getElementById('photo-bg');
+        const photoFg = document.getElementById('photo-fg');
+        const fileInput = document.getElementById('file-upload');
+        const timerDisplay = document.getElementById('timer');
+        const minutesInput = document.getElementById('minutes-input');
+        const startBtn = document.getElementById('start-btn');
+
+        let timeLeft, totalSeconds, timerId, isRunning = false;
+
+        // 배경 사진 고르는 순간 원 안에 쫜득하게 나타남!
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => { 
+                    photoBg.src = event.target.result;
+                    photoFg.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        startBtn.addEventListener('click', () => {
+            if (isRunning) {
+                clearInterval(timerId);
+                startBtn.innerText = 'START';
+                minutesInput.disabled = false;
+            } else {
+                if (!timeLeft) {
+                    const minutes = parseInt(minutesInput.value) || 25;
+                    totalSeconds = minutes * 60;
+                    timeLeft = totalSeconds;
+                }
+                timerId = setInterval(updateTimer, 1000);
+                startBtn.innerText = 'STOP';
+                minutesInput.disabled = true;
+            }
+            isRunning = !isRunning;
+        });
+
+        function updateTimer() {
+            if (timeLeft <= 0) {
+                clearInterval(timerId);
+                alert( "수고했다ㅏ💜");
+                startBtn.innerText = 'START';
+                timeLeft = totalSeconds;
+                minutesInput.disabled = false;
+                photoFg.style.clipPath = `conic-gradient(black 0%, black 100%, transparent 100%, transparent 100%)`;
+                return;
+            }
+            timeLeft--;
+            const m = Math.floor(timeLeft / 60);
+            const s = timeLeft % 60;
+            timerDisplay.innerText = `${m}:${s < 10 ? '0'+s : s}`;
+            
+            const progress = ((totalSeconds - timeLeft) / totalSeconds) * 100;
+            // 시계방향으로 컬러 차오르는 모션! (수정 완료!)
+            photoFg.style.clipPath = `conic-gradient(black 0%, black ${progress}%, transparent ${progress}%, transparent 100%)`;
+        }
+
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            clearInterval(timerId);
+            timeLeft = undefined;
+            isRunning = false;
+            startBtn.innerText = 'START';
+            minutesInput.disabled = false;
+            const m = parseInt(minutesInput.value) || 25;
+            timerDisplay.innerText = `${m}:00`;
+            photoFg.style.clipPath = `conic-gradient(black 0%, transparent 0%)`;
+        });
+    </script>
+</body>
+</html>
